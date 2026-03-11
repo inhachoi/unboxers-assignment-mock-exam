@@ -1,0 +1,181 @@
+import type { FastifyPluginAsync } from "fastify";
+import { AnswerType } from "@prisma/client";
+import { z } from "zod";
+
+import { GRADE_RESULT } from "../lib/constants";
+import { prisma } from "../lib/prisma";
+import { errorResponse, successResponse } from "../lib/response";
+
+const gradeAnswersSchema = z.object({
+  name: z.string().trim().min(1),
+  school: z.string().trim().min(1),
+  grade: z.number().int(),
+  studentNumber: z.number().int(),
+  seatNumber: z.number().int(),
+  answers: z
+    .array(
+      z.object({
+        answerType: z.nativeEnum(AnswerType),
+        number: z.number().int().positive(),
+        answer: z.number().int()
+      })
+    )
+    .min(1)
+});
+
+function buildGradeResponse(
+  exam: {
+    title: string;
+    questions: Array<{
+      answerType: AnswerType;
+      number: number;
+      correctAnswer: number;
+      score: number;
+    }>;
+  },
+  rawAnswers: Array<{
+    answerType: AnswerType;
+    number: number;
+    answer: number;
+  }>
+) {
+  const answerMap = new Map<string, number>();
+
+  for (const rawAnswer of rawAnswers) {
+    answerMap.set(
+      `${rawAnswer.answerType}:${rawAnswer.number}`,
+      rawAnswer.answer
+    );
+  }
+
+  let score = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let unansweredCount = 0;
+
+  const results = exam.questions.map((question) => {
+    const submittedAnswer = answerMap.get(
+      `${question.answerType}:${question.number}`
+    );
+
+    if (submittedAnswer == null) {
+      unansweredCount += 1;
+      return {
+        answerType: question.answerType,
+        number: question.number,
+        result: GRADE_RESULT.UNANSWERED
+      };
+    }
+
+    if (submittedAnswer === question.correctAnswer) {
+      correctCount += 1;
+      score += question.score;
+      return {
+        answerType: question.answerType,
+        number: question.number,
+        result: GRADE_RESULT.CORRECT
+      };
+    }
+
+    wrongCount += 1;
+    return {
+      answerType: question.answerType,
+      number: question.number,
+      result: GRADE_RESULT.WRONG
+    };
+  });
+
+  return {
+    title: exam.title,
+    score,
+    correctCount,
+    wrongCount,
+    unansweredCount,
+    results
+  };
+}
+
+export const examsRoute: FastifyPluginAsync = async (app) => {
+  app.get("/", async (_, reply) => {
+    const exam = await prisma.exam.findFirst({
+      include: {
+        questions: {
+          orderBy: [
+            {
+              answerType: "asc"
+            },
+            {
+              number: "asc"
+            }
+          ],
+          select: {
+            score: true
+          }
+        }
+      }
+    });
+
+    if (!exam) {
+      return reply.code(404).send(errorResponse("Exam not found"));
+    }
+
+    const totalScore = exam.questions.reduce(
+      (sum, question) => sum + question.score,
+      0
+    );
+
+    return successResponse(
+      "Exam retrieved successfully",
+      {
+        title: exam.title,
+        description: exam.description,
+        supervisorName: exam.supervisorName,
+        totalQuestions: exam.questions.length,
+        totalScore
+      }
+    );
+  });
+
+  app.post<{
+    Body: unknown;
+  }>("/submit", async (request, reply) => {
+    const payload = gradeAnswersSchema.safeParse(request.body);
+
+    if (!payload.success) {
+      return reply.code(400).send({
+        ...errorResponse("Invalid request"),
+        issues: payload.error.flatten()
+      });
+    }
+
+    const exam = await prisma.exam.findFirst({
+      include: {
+        questions: {
+          orderBy: [
+            {
+              answerType: "asc"
+            },
+            {
+              number: "asc"
+            }
+          ],
+          select: {
+            answerType: true,
+            number: true,
+            correctAnswer: true,
+            score: true
+          }
+        }
+      }
+    });
+
+    if (!exam) {
+      return reply.code(404).send(errorResponse("Exam not found"));
+    }
+
+    return successResponse(
+      "Exam submitted successfully",
+      buildGradeResponse(exam, payload.data.answers)
+    );
+  });
+};
