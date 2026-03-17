@@ -9,7 +9,9 @@ export default function Header({ studentName, onHome }: HeaderProps) {
       <span className="text-lg font-bold text-gray-800">모의고사 모드</span>
       <div className="flex items-center gap-4">
         {studentName && (
-          <span className="text-sm font-semibold text-gray-700">{studentName} 학생</span>
+          <span className="text-sm font-semibold text-gray-700">
+            {studentName} 학생
+          </span>
         )}
         {onHome && (
           <button

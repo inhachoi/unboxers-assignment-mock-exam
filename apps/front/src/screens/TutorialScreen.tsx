@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useShallow } from 'zustand/react/shallow'
-import { useExamStore } from '../store/examStore'
-import Keypad from '../components/Keypad'
-import { getExam } from '../api/exam'
+import { getExam } from '@/api'
+import { Keypad } from '@/components'
+import { useExamStore } from '@/store'
 
 const CHOICES = [1, 2, 3, 4, 5]
 const OBJ_COUNT = 14
-const SUBJ_COUNT = 11
 
-type Visual = 'exam-paper' | 'exam-and-omr' | 'omr-objective' | 'omr-subjective' | 'timer'
+type Visual =
+  | 'exam-paper'
+  | 'exam-and-omr'
+  | 'omr-objective'
+  | 'omr-subjective'
+  | 'timer'
 
 interface StepDef {
   title: string
@@ -17,7 +21,10 @@ interface StepDef {
   visual: Visual
   highlight?: number
   requireAction?: boolean
-  checkDone?: (obj: Record<number, number[]>, subj: Record<number, string>) => boolean
+  checkDone?: (
+    obj: Record<number, number[]>,
+    subj: Record<number, string>,
+  ) => boolean
 }
 
 const STEPS: StepDef[] = [
@@ -28,12 +35,14 @@ const STEPS: StepDef[] = [
   },
   {
     title: '실제 시험지와 함께 진행해요',
-    description: '실제 시험지 크기에 인쇄된 시험지에 문제를 풀고\n화면에 표시된 OMR카드에 답을 마킹해요',
+    description:
+      '실제 시험지 크기에 인쇄된 시험지에 문제를 풀고\n화면에 표시된 OMR카드에 답을 마킹해요',
     visual: 'exam-and-omr',
   },
   {
     title: '객관식 답안을 마킹해요',
-    description: '객관식 답안은 화면에서 터치해서 마킹해요\n13번 문제에 3번으로 답안을 마킹해보세요',
+    description:
+      '객관식 답안은 화면에서 터치해서 마킹해요\n13번 문제에 3번으로 답안을 마킹해보세요',
     visual: 'omr-objective',
     highlight: 13,
     requireAction: true,
@@ -41,7 +50,8 @@ const STEPS: StepDef[] = [
   },
   {
     title: '마킹을 지울 수 있어요',
-    description: '마킹한 곳을 한 번 더 터치하면 지울 수 있어요\n13번 문제에 3번 답안을 지워보세요',
+    description:
+      '마킹한 곳을 한 번 더 터치하면 지울 수 있어요\n13번 문제에 3번 답안을 지워보세요',
     visual: 'omr-objective',
     highlight: 13,
     requireAction: true,
@@ -49,7 +59,8 @@ const STEPS: StepDef[] = [
   },
   {
     title: '복수 정답도 있어요',
-    description: '2개 이상의 답안을 골라야 하는 문제에서는\n두 답안 모두 마킹하면 돼요',
+    description:
+      '2개 이상의 답안을 골라야 하는 문제에서는\n두 답안 모두 마킹하면 돼요',
     visual: 'omr-objective',
     highlight: 14,
     requireAction: true,
@@ -57,7 +68,8 @@ const STEPS: StepDef[] = [
   },
   {
     title: '주관식 답안을 입력해요',
-    description: '주관식 답안을 입력하려면 입력할 곳을 터치해요\n4번 문제에 답안을 입력해볼까요?',
+    description:
+      '주관식 답안을 입력하려면 입력할 곳을 터치해요\n4번 문제에 답안을 입력해볼까요?',
     visual: 'omr-subjective',
     highlight: 4,
     requireAction: true,
@@ -79,12 +91,14 @@ const STEPS: StepDef[] = [
   },
   {
     title: '시간이 지나면 자동 제출돼요',
-    description: '시간이 모두 지나면 시험은 종료되고 OMR카드는 자동으로 제출돼요\n마킹하지 못한 답안은 모두 오답 처리되니 미리 마킹하세요',
+    description:
+      '시간이 모두 지나면 시험은 종료되고 OMR카드는 자동으로 제출돼요\n마킹하지 못한 답안은 모두 오답 처리되니 미리 마킹하세요',
     visual: 'timer',
   },
   {
     title: '준비됐나요?',
-    description: '튜토리얼을 모두 완료했어요!\n이제 실제 시험을 시작할 준비가 됐어요',
+    description:
+      '튜토리얼을 모두 완료했어요!\n이제 실제 시험을 시작할 준비가 됐어요',
     visual: 'exam-paper',
   },
 ]
@@ -110,14 +124,21 @@ function MiniOMRPreview() {
       style={{ zoom: 0.58 }}
     >
       <div className="p-4">
-        <p className="text-xs font-extrabold text-center tracking-[0.2em] text-gray-500 mb-3">객관식</p>
+        <p className="text-xs font-extrabold text-center tracking-[0.2em] text-gray-500 mb-3">
+          객관식
+        </p>
         <div className="flex flex-col gap-1">
-          {Array.from({ length: OBJ_COUNT }, (_, i) => i + 1).map(q => (
+          {Array.from({ length: OBJ_COUNT }, (_, i) => i + 1).map((q) => (
             <div key={q} className="flex items-center gap-1.5 px-1">
-              <span className="text-xs text-gray-400 w-5 text-right shrink-0">{q}</span>
+              <span className="text-xs text-gray-400 w-5 text-right shrink-0">
+                {q}
+              </span>
               <div className="flex gap-1">
-                {CHOICES.map(c => (
-                  <div key={c} className="w-7 h-7 rounded-full border-2 border-gray-200 bg-white" />
+                {CHOICES.map((c) => (
+                  <div
+                    key={c}
+                    className="w-7 h-7 rounded-full border-2 border-gray-200 bg-white"
+                  />
                 ))}
               </div>
             </div>
@@ -159,11 +180,13 @@ function ObjQuestion({
         isHighlighted ? 'bg-blue-50 ring-1 ring-blue-200' : ''
       }`}
     >
-      <span className={`text-xs font-bold w-5 text-right shrink-0 ${isHighlighted ? 'text-blue-500' : 'text-gray-400'}`}>
+      <span
+        className={`text-xs font-bold w-5 text-right shrink-0 ${isHighlighted ? 'text-blue-500' : 'text-gray-400'}`}
+      >
         {q}
       </span>
       <div className="flex gap-1">
-        {CHOICES.map(c => (
+        {CHOICES.map((c) => (
           <button
             key={c}
             onClick={() => onMark(q, c)}
@@ -192,20 +215,37 @@ function ObjectiveOMRVisual({
 }) {
   const half = Math.ceil(OBJ_COUNT / 2)
   const leftCol = Array.from({ length: half }, (_, i) => i + 1)
-  const rightCol = Array.from({ length: OBJ_COUNT - half }, (_, i) => i + half + 1)
+  const rightCol = Array.from(
+    { length: OBJ_COUNT - half },
+    (_, i) => i + half + 1,
+  )
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 max-w-2xl mx-auto">
-      <h3 className="text-xs font-extrabold text-center tracking-[0.2em] text-gray-500 mb-4">객관식</h3>
+      <h3 className="text-xs font-extrabold text-center tracking-[0.2em] text-gray-500 mb-4">
+        객관식
+      </h3>
       <div className="grid grid-cols-2 gap-x-6">
         <div className="flex flex-col gap-1">
-          {leftCol.map(q => (
-            <ObjQuestion key={q} q={q} selected={answers[q] ?? []} isHighlighted={q === highlight} onMark={onMark} />
+          {leftCol.map((q) => (
+            <ObjQuestion
+              key={q}
+              q={q}
+              selected={answers[q] ?? []}
+              isHighlighted={q === highlight}
+              onMark={onMark}
+            />
           ))}
         </div>
         <div className="flex flex-col gap-1">
-          {rightCol.map(q => (
-            <ObjQuestion key={q} q={q} selected={answers[q] ?? []} isHighlighted={q === highlight} onMark={onMark} />
+          {rightCol.map((q) => (
+            <ObjQuestion
+              key={q}
+              q={q}
+              selected={answers[q] ?? []}
+              isHighlighted={q === highlight}
+              onMark={onMark}
+            />
           ))}
         </div>
       </div>
@@ -233,9 +273,11 @@ function SubjectiveOMRVisual({
   return (
     <div className="flex gap-4 max-w-2xl mx-auto items-start">
       <div className="bg-white rounded-2xl shadow-md p-6 flex-1">
-        <h3 className="text-xs font-extrabold text-center tracking-[0.2em] text-gray-500 mb-4">주관식</h3>
+        <h3 className="text-xs font-extrabold text-center tracking-[0.2em] text-gray-500 mb-4">
+          주관식
+        </h3>
         <div className="flex flex-col gap-1.5">
-          {Array.from({ length: 5 }, (_, i) => i + 1).map(q => {
+          {Array.from({ length: 5 }, (_, i) => i + 1).map((q) => {
             const isHighlighted = q === highlight
             const answer = answers[q]
             const isActive = activeSubj === q
@@ -244,7 +286,9 @@ function SubjectiveOMRVisual({
                 key={q}
                 className={`flex items-center gap-2 px-2 py-1 rounded-lg ${isHighlighted ? 'bg-blue-50 ring-1 ring-blue-200' : ''}`}
               >
-                <span className={`text-xs font-bold w-6 text-right shrink-0 ${isHighlighted ? 'text-blue-500' : 'text-gray-400'}`}>
+                <span
+                  className={`text-xs font-bold w-6 text-right shrink-0 ${isHighlighted ? 'text-blue-500' : 'text-gray-400'}`}
+                >
                   {q}
                 </span>
                 <button
@@ -253,11 +297,11 @@ function SubjectiveOMRVisual({
                     isActive
                       ? 'border-gray-900 bg-gray-900 text-white'
                       : answer
-                      ? 'border-gray-300 bg-gray-50 text-gray-800'
-                      : 'border-gray-200 bg-white text-gray-300'
+                        ? 'border-gray-300 bg-gray-50 text-gray-800'
+                        : 'border-gray-200 bg-white text-gray-300'
                   }`}
                 >
-                  {isActive ? (keypadValue || '입력 중...') : (answer ?? '—')}
+                  {isActive ? keypadValue || '입력 중...' : (answer ?? '—')}
                 </button>
               </div>
             )
@@ -285,15 +329,19 @@ function TimerVisual() {
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
           <div>
             <p className="text-xs text-gray-400">시험 종료까지</p>
-            <p className="text-5xl font-extrabold text-red-500 tabular-nums leading-none mt-1">5초</p>
+            <p className="text-5xl font-extrabold text-red-500 tabular-nums leading-none mt-1">
+              5초
+            </p>
           </div>
           <button className="px-4 py-2 rounded-xl text-xs font-extrabold text-white bg-gradient-to-r from-[#333] to-[#585858] opacity-40 cursor-default">
             답안 제출하기
           </button>
         </div>
         <p className="text-sm text-gray-500 leading-relaxed text-center">
-          시간이 종료되면<br />
-          <span className="font-bold text-red-500">OMR카드가 자동 제출</span>됩니다
+          시간이 종료되면
+          <br />
+          <span className="font-bold text-red-500">OMR카드가 자동 제출</span>
+          됩니다
         </p>
       </div>
     </div>
@@ -304,7 +352,11 @@ function TimerVisual() {
 
 export default function TutorialScreen() {
   const { studentInfo, startExam, reset } = useExamStore(
-    useShallow(s => ({ studentInfo: s.studentInfo, startExam: s.startExam, reset: s.reset }))
+    useShallow((s) => ({
+      studentInfo: s.studentInfo,
+      startExam: s.startExam,
+      reset: s.reset,
+    })),
   )
 
   const [step, setStep] = useState(0)
@@ -346,7 +398,9 @@ export default function TutorialScreen() {
 
   function handleObjClick(q: number, choice: number) {
     const prev = objAnswers[q] ?? []
-    const updated = prev.includes(choice) ? prev.filter(c => c !== choice) : [...prev, choice]
+    const updated = prev.includes(choice)
+      ? prev.filter((c) => c !== choice)
+      : [...prev, choice]
     const newObj = { ...objAnswers, [q]: updated }
     setObjAnswers(newObj)
     const checkFn = STEPS[step].checkDone
@@ -419,14 +473,17 @@ export default function TutorialScreen() {
       <div className="px-8 pb-8 flex-shrink-0 max-w-lg mx-auto w-full">
         {examInfo && (
           <p className="text-xs text-gray-400 text-center mb-3">
-            {examInfo.title} · {examInfo.totalQuestions}문항 · {examInfo.totalScore}점
+            {examInfo.title} · {examInfo.totalQuestions}문항 ·{' '}
+            {examInfo.totalScore}점
           </p>
         )}
 
         <div className="mb-4">
           <div className="flex justify-between text-xs text-gray-400 mb-1">
             <span>튜토리얼</span>
-            <span>{step + 1} / {STEPS.length}</span>
+            <span>
+              {step + 1} / {STEPS.length}
+            </span>
           </div>
           <div className="w-full h-1.5 bg-gray-200 rounded-full">
             <div
@@ -437,11 +494,19 @@ export default function TutorialScreen() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-6 text-center mb-5">
-          <p className="text-xs font-bold text-gray-400 mb-1">STEP {step + 1}</p>
-          <h2 className="text-lg font-extrabold text-gray-900 mb-2">{current.title}</h2>
-          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{current.description}</p>
+          <p className="text-xs font-bold text-gray-400 mb-1">
+            STEP {step + 1}
+          </p>
+          <h2 className="text-lg font-extrabold text-gray-900 mb-2">
+            {current.title}
+          </h2>
+          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+            {current.description}
+          </p>
           {current.requireAction && (
-            <p className="text-xs text-blue-500 font-semibold mt-3 animate-pulse">↑ 위에서 직접 해보세요</p>
+            <p className="text-xs text-blue-500 font-semibold mt-3 animate-pulse">
+              ↑ 위에서 직접 해보세요
+            </p>
           )}
         </div>
 

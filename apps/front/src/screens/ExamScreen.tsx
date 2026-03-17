@@ -1,16 +1,20 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useShallow } from 'zustand/react/shallow'
-import { useExamStore } from '../store/examStore'
-import OMRCard from '../components/OMRCard'
-import Timer from '../components/Timer'
-import { submitExam, buildAnswerPayload } from '../api/exam'
+import { buildAnswerPayload, submitExam } from '@/api'
+import { OMRCard } from '@/components'
+import { Timer } from '@/components'
+import { useExamStore } from '@/store'
 
 export default function ExamScreen() {
   const { studentInfo, answers, setResult } = useExamStore(
-    useShallow(s => ({ studentInfo: s.studentInfo, answers: s.answers, setResult: s.setResult }))
+    useShallow((s) => ({
+      studentInfo: s.studentInfo,
+      answers: s.answers,
+      setResult: s.setResult,
+    })),
   )
-  const reset = useExamStore(s => s.reset)
+  const reset = useExamStore((s) => s.reset)
   const [examStarted, setExamStarted] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [showHomeConfirm, setShowHomeConfirm] = useState(false)
@@ -22,7 +26,9 @@ export default function ExamScreen() {
     },
     onError: () => {
       setShowConfirm(false)
-      alert('답안 제출에 실패했습니다. 서버가 실행 중인지 확인하고 다시 시도해주세요.')
+      alert(
+        '답안 제출에 실패했습니다. 서버가 실행 중인지 확인하고 다시 시도해주세요.',
+      )
     },
   })
 
@@ -57,7 +63,9 @@ export default function ExamScreen() {
           <span className="text-gray-200">|</span>
           <span className="text-sm font-bold text-gray-800">모의고사 모드</span>
           {studentInfo?.name && (
-            <span className="text-sm text-gray-500">{studentInfo.name} 학생</span>
+            <span className="text-sm text-gray-500">
+              {studentInfo.name} 학생
+            </span>
           )}
         </div>
 
@@ -79,15 +87,22 @@ export default function ExamScreen() {
       </div>
 
       {/* OMR 카드 */}
-      <div className={`flex-1 flex items-start justify-center px-8 py-8 transition-opacity duration-500 ${
-        examStarted ? 'opacity-100' : 'opacity-30 pointer-events-none'
-      }`}>
+      <div
+        className={`flex-1 flex items-start justify-center px-8 py-8 transition-opacity duration-500 ${
+          examStarted ? 'opacity-100' : 'opacity-30 pointer-events-none'
+        }`}
+      >
         <OMRCard />
       </div>
 
       {!examStarted && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ top: '120px' }}>
-          <p className="text-gray-400 text-sm font-semibold">시험 시작 후 답안을 입력할 수 있습니다</p>
+        <div
+          className="fixed inset-0 flex items-center justify-center pointer-events-none"
+          style={{ top: '120px' }}
+        >
+          <p className="text-gray-400 text-sm font-semibold">
+            시험 시작 후 답안을 입력할 수 있습니다
+          </p>
         </div>
       )}
 
@@ -95,7 +110,9 @@ export default function ExamScreen() {
       {showHomeConfirm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 w-full max-w-sm text-center shadow-xl">
-            <h3 className="text-lg font-extrabold text-gray-900 mb-2">홈으로 돌아갈까요?</h3>
+            <h3 className="text-lg font-extrabold text-gray-900 mb-2">
+              홈으로 돌아갈까요?
+            </h3>
             <p className="text-sm text-gray-500 mb-6">
               진행 중인 시험과 입력한 답안이 모두 사라집니다.
             </p>
@@ -121,7 +138,9 @@ export default function ExamScreen() {
       {showConfirm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 w-full max-w-sm text-center shadow-xl">
-            <h3 className="text-lg font-extrabold text-gray-900 mb-2">답안을 제출할까요?</h3>
+            <h3 className="text-lg font-extrabold text-gray-900 mb-2">
+              답안을 제출할까요?
+            </h3>
             <p className="text-sm text-gray-500 mb-6">
               제출 후에는 답안을 수정할 수 없습니다.
             </p>
@@ -133,7 +152,10 @@ export default function ExamScreen() {
                 취소
               </button>
               <button
-                onClick={() => { setShowConfirm(false); handleSubmit() }}
+                onClick={() => {
+                  setShowConfirm(false)
+                  handleSubmit()
+                }}
                 className="flex-1 py-3 rounded-xl font-extrabold text-white bg-gradient-to-r from-[#333] to-[#585858] active:scale-95 transition-transform"
               >
                 제출하기

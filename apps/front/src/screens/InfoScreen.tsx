@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useExamStore } from '../store/examStore'
+import { useExamStore } from '@/store'
 
 export default function InfoScreen() {
-  const setStudent = useExamStore(s => s.setStudent)
+  const setStudent = useExamStore((s) => s.setStudent)
   const [form, setForm] = useState({
     name: '',
     school: '',
@@ -31,27 +31,43 @@ export default function InfoScreen() {
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const fields = [
     { label: '이름', name: 'name', type: 'text', placeholder: '홍길동' },
-    { label: '학교', name: 'school', type: 'text', placeholder: '베이스고등학교' },
+    {
+      label: '학교',
+      name: 'school',
+      type: 'text',
+      placeholder: '베이스고등학교',
+    },
     { label: '학년', name: 'grade', type: 'number', placeholder: '2' },
     { label: '번호', name: 'studentNumber', type: 'number', placeholder: '15' },
-    { label: '좌석 번호', name: 'seatNumber', type: 'number', placeholder: '3' },
+    {
+      label: '좌석 번호',
+      name: 'seatNumber',
+      type: 'number',
+      placeholder: '3',
+    },
   ]
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-md p-10 w-full max-w-md">
-        <h1 className="text-2xl font-extrabold text-gray-900 mb-1">모의고사 OMR</h1>
-        <p className="text-sm text-gray-500 mb-8">시험을 시작하기 전에 학생 정보를 입력해주세요.</p>
+        <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
+          모의고사 OMR
+        </h1>
+        <p className="text-sm text-gray-500 mb-8">
+          시험을 시작하기 전에 학생 정보를 입력해주세요.
+        </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {fields.map(field => (
+          {fields.map((field) => (
             <div key={field.name} className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-700">{field.label}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {field.label}
+              </label>
               <input
                 name={field.name}
                 type={field.type}

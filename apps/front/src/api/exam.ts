@@ -89,7 +89,11 @@ export function buildAnswerPayload(answers: {
   for (const [num, raw] of Object.entries(answers.subjective)) {
     const parsed = parseSubjectiveAnswer(raw)
     if (parsed !== null) {
-      result.push({ answerType: 'subjective', number: Number(num), answer: parsed })
+      result.push({
+        answerType: 'subjective',
+        number: Number(num),
+        answer: parsed,
+      })
     }
   }
 
