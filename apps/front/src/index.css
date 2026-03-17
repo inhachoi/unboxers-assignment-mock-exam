@@ -4,10 +4,14 @@
   font-family: 'Pretendard', sans-serif;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(32px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
