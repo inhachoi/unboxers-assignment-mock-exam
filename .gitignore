@@ -21,3 +21,9 @@ apps/server/generated
 
 # macOS
 .DS_Store
+
+# claude 
+.claude/
+.mcp.json
+.vscode
+docs
