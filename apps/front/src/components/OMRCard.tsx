@@ -31,14 +31,9 @@ export default function OMRCard() {
     setKeypadValue('')
   }
 
-  function handleKeypadClose() {
-    setActiveSubjective(null)
-    setKeypadValue('')
-  }
-
   return (
-    <>
-      <div className="bg-white rounded-2xl shadow-md p-6 w-full max-w-3xl mx-auto">
+    <div className="flex gap-5 items-start w-full max-w-4xl mx-auto min-w-180">
+      <div className="bg-white rounded-2xl shadow-md p-6 flex-1">
         {/* OMR 카드 헤더 */}
         <div className="text-center mb-6 border-b border-gray-200 pb-4">
           <p className="text-xs text-gray-500 tracking-widest">학생답안 입력용</p>
@@ -119,15 +114,16 @@ export default function OMRCard() {
         </div>
       </div>
 
-      {/* 키패드 팝업 */}
-      {activeSubjective !== null && (
+      {/* 키패드 */}
+      <div className="w-52 shrink-0 sticky top-24">
         <Keypad
           value={keypadValue}
           onChange={setKeypadValue}
           onConfirm={handleKeypadConfirm}
-          onClose={handleKeypadClose}
+          isActive={activeSubjective !== null}
+          activeNumber={activeSubjective}
         />
-      )}
-    </>
+      </div>
+    </div>
   )
 }
