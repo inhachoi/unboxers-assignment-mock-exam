@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useShallow } from 'zustand/react/shallow'
 import { useExamStore } from '../store/examStore'
-import Header from '../components/Header'
 import OMRCard from '../components/OMRCard'
 import Timer from '../components/Timer'
 import { submitExam, buildAnswerPayload } from '../api/exam'
@@ -46,29 +45,37 @@ export default function ExamScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <Header studentName={studentInfo?.name} />
-
-      {/* 타이머 + 제출 버튼 */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 z-10 px-8 py-3 flex items-center justify-between gap-6">
+      {/* 통합 네비게이션 바 */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 z-10 px-8 py-3 grid grid-cols-3 items-center">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowHomeConfirm(true)}
-            className="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors"
+            className="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors whitespace-nowrap"
           >
             ← 홈으로
           </button>
+          <span className="text-gray-200">|</span>
+          <span className="text-sm font-bold text-gray-800">모의고사 모드</span>
+          {studentInfo?.name && (
+            <span className="text-sm text-gray-500">{studentInfo.name} 학생</span>
+          )}
+        </div>
+
+        <div className="flex justify-center">
           <Timer onExamStart={handleExamStart} onExamEnd={handleExamEnd} />
         </div>
 
-        {examStarted && (
-          <button
-            onClick={() => setShowConfirm(true)}
-            disabled={mutation.isPending}
-            className="px-6 py-3 rounded-xl font-extrabold text-white bg-gradient-to-r from-[#333] to-[#585858] disabled:opacity-50 active:scale-95 transition-transform whitespace-nowrap"
-          >
-            답안 제출하기
-          </button>
-        )}
+        <div className="flex justify-end">
+          {examStarted && (
+            <button
+              onClick={() => setShowConfirm(true)}
+              disabled={mutation.isPending}
+              className="px-6 py-3 rounded-xl font-extrabold text-white bg-gradient-to-r from-[#333] to-[#585858] disabled:opacity-50 active:scale-95 transition-transform whitespace-nowrap"
+            >
+              답안 제출하기
+            </button>
+          )}
+        </div>
       </div>
 
       {/* OMR 카드 */}

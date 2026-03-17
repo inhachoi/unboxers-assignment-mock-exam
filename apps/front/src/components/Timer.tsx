@@ -59,21 +59,16 @@ export default function Timer({ onExamStart, onExamEnd }: TimerProps) {
   if (phase === "waiting") {
     return (
       <div className="text-center">
-        <p className="text-sm text-gray-500">시험이 곧 시작됩니다...</p>
-        <p className="text-xl font-extrabold text-gray-800">
-          {timeStr} 뒤 시작
-        </p>
-        <p className="text-xs text-gray-400">시험 시간 1분</p>
+        <p className="text-xs text-gray-400">시험 시작까지 · 시험 시간 1분</p>
+        <p className="text-2xl font-extrabold tabular-nums text-gray-800">{timeStr}</p>
       </div>
     );
   }
 
   return (
     <div className="text-center">
-      <p className="text-xs text-gray-500">시험 종료까지 남은 시간</p>
-      <p
-        className={`text-2xl font-extrabold tabular-nums ${seconds <= 10 ? "text-red-500" : "text-gray-800"}`}
-      >
+      <p className="text-xs text-gray-400">시험 종료까지</p>
+      <p className={`text-2xl font-extrabold tabular-nums ${seconds <= 10 ? "text-red-500" : "text-gray-800"}`}>
         {timeStr}
       </p>
     </div>

@@ -115,7 +115,7 @@ export default function OMRCard() {
       </div>
 
       {/* 키패드 */}
-      <div className="w-52 shrink-0 sticky top-24">
+      <div className="w-52 shrink-0 sticky top-16">
         <Keypad
           value={keypadValue}
           onChange={setKeypadValue}
