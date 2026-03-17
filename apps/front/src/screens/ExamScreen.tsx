@@ -11,8 +11,10 @@ export default function ExamScreen() {
   const { studentInfo, answers, setResult } = useExamStore(
     useShallow(s => ({ studentInfo: s.studentInfo, answers: s.answers, setResult: s.setResult }))
   )
+  const reset = useExamStore(s => s.reset)
   const [examStarted, setExamStarted] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showHomeConfirm, setShowHomeConfirm] = useState(false)
 
   const mutation = useMutation({
     mutationFn: submitExam,
@@ -48,7 +50,15 @@ export default function ExamScreen() {
 
       {/* 타이머 + 제출 버튼 */}
       <div className="sticky top-0 bg-white border-b border-gray-200 z-10 px-8 py-3 flex items-center justify-between gap-6">
-        <Timer onExamStart={handleExamStart} onExamEnd={handleExamEnd} />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowHomeConfirm(true)}
+            className="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            ← 홈으로
+          </button>
+          <Timer onExamStart={handleExamStart} onExamEnd={handleExamEnd} />
+        </div>
 
         {examStarted && (
           <button
@@ -71,6 +81,32 @@ export default function ExamScreen() {
       {!examStarted && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ top: '120px' }}>
           <p className="text-gray-400 text-sm font-semibold">시험 시작 후 답안을 입력할 수 있습니다</p>
+        </div>
+      )}
+
+      {/* 홈으로 확인 모달 */}
+      {showHomeConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-sm text-center shadow-xl">
+            <h3 className="text-lg font-extrabold text-gray-900 mb-2">홈으로 돌아갈까요?</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              진행 중인 시험과 입력한 답안이 모두 사라집니다.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowHomeConfirm(false)}
+                className="flex-1 py-3 rounded-xl border border-gray-300 font-bold text-gray-700 active:scale-95 transition-transform"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => reset()}
+                className="flex-1 py-3 rounded-xl font-extrabold text-white bg-gradient-to-r from-[#333] to-[#585858] active:scale-95 transition-transform"
+              >
+                홈으로
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -27,6 +27,16 @@ export default function ResultScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col items-center py-12 px-6">
+      {/* 홈으로 버튼 */}
+      <div className="w-full max-w-lg mb-4">
+        <button
+          onClick={() => reset()}
+          className="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          ← 홈으로
+        </button>
+      </div>
+
       {/* 제출 완료 헤더 */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-1">제출 완료!</h1>
