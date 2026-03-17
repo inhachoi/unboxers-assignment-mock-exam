@@ -184,3 +184,14 @@ pnpm dev
 - `pnpm install`
 - `pnpm dev`
 - 웹앱 실행 주소 기재
+
+## Web App Run
+
+```bash
+pnpm install
+pnpm db:generate
+pnpm db:push
+pnpm db:seed
+pnpm dev        # 서버 실행: http://localhost:3001
+pnpm dev:front  # 웹앱 실행: http://localhost:5173
+```
