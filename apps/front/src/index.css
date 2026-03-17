@@ -3,3 +3,18 @@
 * {
   font-family: 'Pretendard', sans-serif;
 }
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
