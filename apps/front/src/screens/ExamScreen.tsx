@@ -16,6 +16,10 @@ export default function ExamScreen() {
     onSuccess: (data) => {
       dispatch({ type: 'SET_RESULT', payload: data })
     },
+    onError: () => {
+      setShowConfirm(false)
+      alert('답안 제출에 실패했습니다. 서버가 실행 중인지 확인하고 다시 시도해주세요.')
+    },
   })
 
   const handleSubmit = useCallback(() => {
