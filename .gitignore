@@ -25,5 +25,6 @@ apps/server/generated
 # claude 
 .claude/
 .mcp.json
-.vscode
+.vscode/*
+!.vscode/settings.json
 docs
