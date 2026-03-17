@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.30.3",
   "scripts": {
+    "start": "pnpm db:generate && pnpm db:push && pnpm db:seed && pnpm dev & pnpm dev:front",
     "dev": "pnpm --filter server dev",
     "dev:front": "pnpm --filter front dev",
     "db:generate": "pnpm --filter server db:generate",
