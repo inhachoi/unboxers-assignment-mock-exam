@@ -1,5 +1,5 @@
 {
-  "name": "unboxers-assignment-mock-exam-server",
+  "name": "server",
   "private": true,
   "type": "module",
   "scripts": {
