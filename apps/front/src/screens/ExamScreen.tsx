@@ -1,20 +1,23 @@
 import { useState, useCallback } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { useExam } from '../context/ExamContext'
+import { useShallow } from 'zustand/react/shallow'
+import { useExamStore } from '../store/examStore'
 import Header from '../components/Header'
 import OMRCard from '../components/OMRCard'
 import Timer from '../components/Timer'
 import { submitExam, buildAnswerPayload } from '../api/exam'
 
 export default function ExamScreen() {
-  const { state, dispatch } = useExam()
+  const { studentInfo, answers, setResult } = useExamStore(
+    useShallow(s => ({ studentInfo: s.studentInfo, answers: s.answers, setResult: s.setResult }))
+  )
   const [examStarted, setExamStarted] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
   const mutation = useMutation({
     mutationFn: submitExam,
     onSuccess: (data) => {
-      dispatch({ type: 'SET_RESULT', payload: data })
+      setResult(data)
     },
     onError: () => {
       setShowConfirm(false)
@@ -23,13 +26,13 @@ export default function ExamScreen() {
   })
 
   const handleSubmit = useCallback(() => {
-    if (!state.studentInfo || mutation.isPending) return
+    if (!studentInfo || mutation.isPending) return
     const payload = {
-      ...state.studentInfo,
-      answers: buildAnswerPayload(state.answers),
+      ...studentInfo,
+      answers: buildAnswerPayload(answers),
     }
     mutation.mutate(payload)
-  }, [state, mutation])
+  }, [studentInfo, answers, mutation])
 
   const handleExamEnd = useCallback(() => {
     handleSubmit()
@@ -41,7 +44,7 @@ export default function ExamScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <Header studentName={state.studentInfo?.name} />
+      <Header studentName={studentInfo?.name} />
 
       {/* 타이머 + 제출 버튼 */}
       <div className="sticky top-0 bg-white border-b border-gray-200 z-10 px-8 py-3 flex items-center justify-between gap-6">

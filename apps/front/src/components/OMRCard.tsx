@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useExam } from '../context/ExamContext'
+import { useShallow } from 'zustand/react/shallow'
+import { useExamStore } from '../store/examStore'
 import Keypad from './Keypad'
 
 const OBJECTIVE_COUNT = 14
@@ -7,22 +8,24 @@ const SUBJECTIVE_COUNT = 11
 const CHOICES = [1, 2, 3, 4, 5]
 
 export default function OMRCard() {
-  const { state, dispatch } = useExam()
+  const { answers, setObjectiveAnswer, setSubjectiveAnswer } = useExamStore(
+    useShallow(s => ({ answers: s.answers, setObjectiveAnswer: s.setObjectiveAnswer, setSubjectiveAnswer: s.setSubjectiveAnswer }))
+  )
   const [activeSubjective, setActiveSubjective] = useState<number | null>(null)
   const [keypadValue, setKeypadValue] = useState('')
 
   function handleObjectiveClick(questionNum: number, choice: number) {
-    dispatch({ type: 'SET_OBJECTIVE_ANSWER', number: questionNum, answer: choice })
+    setObjectiveAnswer(questionNum, choice)
   }
 
   function openKeypad(questionNum: number) {
     setActiveSubjective(questionNum)
-    setKeypadValue(state.answers.subjective[questionNum] ?? '')
+    setKeypadValue(answers.subjective[questionNum] ?? '')
   }
 
   function handleKeypadConfirm() {
     if (activeSubjective !== null) {
-      dispatch({ type: 'SET_SUBJECTIVE_ANSWER', number: activeSubjective, answer: keypadValue })
+      setSubjectiveAnswer(activeSubjective, keypadValue)
     }
     setActiveSubjective(null)
     setKeypadValue('')
@@ -60,7 +63,7 @@ export default function OMRCard() {
                   <span className="w-6 text-right text-sm font-bold text-gray-500 shrink-0">{num}</span>
                   <div className="flex gap-1.5">
                     {CHOICES.map(choice => {
-                      const isSelected = state.answers.objective[num] === choice
+                      const isSelected = answers.objective[num] === choice
                       return (
                         <button
                           key={choice}
@@ -94,7 +97,7 @@ export default function OMRCard() {
             </p>
             <div className="flex flex-col gap-2">
               {Array.from({ length: SUBJECTIVE_COUNT }, (_, i) => i + 1).map(num => {
-                const val = state.answers.subjective[num]
+                const val = answers.subjective[num]
                 return (
                   <div key={num} className="flex items-center gap-2">
                     <span className="w-6 text-right text-sm font-bold text-gray-500 shrink-0">{num}</span>

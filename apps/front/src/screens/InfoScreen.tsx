@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useExam } from '../context/ExamContext'
+import { useExamStore } from '../store/examStore'
 
 export default function InfoScreen() {
-  const { dispatch } = useExam()
+  const setStudent = useExamStore(s => s.setStudent)
   const [form, setForm] = useState({
     name: '',
     school: '',
@@ -21,15 +21,12 @@ export default function InfoScreen() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!isValid) return
-    dispatch({
-      type: 'SET_STUDENT',
-      payload: {
-        name: form.name.trim(),
-        school: form.school.trim(),
-        grade: Number(form.grade),
-        studentNumber: Number(form.studentNumber),
-        seatNumber: Number(form.seatNumber),
-      },
+    setStudent({
+      name: form.name.trim(),
+      school: form.school.trim(),
+      grade: Number(form.grade),
+      studentNumber: Number(form.studentNumber),
+      seatNumber: Number(form.seatNumber),
     })
   }
 

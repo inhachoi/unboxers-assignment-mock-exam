@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useExam } from '../context/ExamContext'
+import { useShallow } from 'zustand/react/shallow'
+import { useExamStore } from '../store/examStore'
 
 type Tab = 'objective' | 'subjective'
 
@@ -10,8 +11,9 @@ const RESULT_STYLE = {
 }
 
 export default function ResultScreen() {
-  const { state, dispatch } = useExam()
-  const { examResult, studentInfo, answers } = state
+  const { examResult, studentInfo, answers, reset } = useExamStore(
+    useShallow(s => ({ examResult: s.examResult, studentInfo: s.studentInfo, answers: s.answers, reset: s.reset }))
+  )
   const [tab, setTab] = useState<Tab>('objective')
 
   if (!examResult || !studentInfo) return null
@@ -110,7 +112,7 @@ export default function ResultScreen() {
 
       {/* 종료 버튼 */}
       <button
-        onClick={() => dispatch({ type: 'RESET' })}
+        onClick={() => reset()}
         className="w-full max-w-lg py-4 rounded-xl font-extrabold text-gray-700 border-2 border-gray-300 bg-white hover:bg-gray-50 active:scale-95 transition-transform"
       >
         종료하기

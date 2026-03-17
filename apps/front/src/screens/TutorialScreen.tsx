@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useExam } from '../context/ExamContext'
+import { useShallow } from 'zustand/react/shallow'
+import { useExamStore } from '../store/examStore'
 import Header from '../components/Header'
 import { getExam } from '../api/exam'
 
@@ -48,7 +49,9 @@ const TUTORIAL_STEPS = [
 ]
 
 export default function TutorialScreen() {
-  const { state, dispatch } = useExam()
+  const { studentInfo, startExam } = useExamStore(
+    useShallow(s => ({ studentInfo: s.studentInfo, startExam: s.startExam }))
+  )
   const [step, setStep] = useState(0)
 
   const { data: examInfo } = useQuery({
@@ -61,7 +64,7 @@ export default function TutorialScreen() {
 
   function handleNext() {
     if (isLast) {
-      dispatch({ type: 'START_EXAM' })
+      startExam()
     } else {
       setStep(s => s + 1)
     }
@@ -72,12 +75,12 @@ export default function TutorialScreen() {
   }
 
   function handleSkip() {
-    dispatch({ type: 'START_EXAM' })
+    startExam()
   }
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <Header studentName={state.studentInfo?.name} />
+      <Header studentName={studentInfo?.name} />
 
       <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
         {examInfo && (
